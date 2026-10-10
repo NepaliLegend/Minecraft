@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "S S",
+    "SSS",
+    "SSS"
+  ],
+  "key": {
+    "S": {
+      "item": "arcanebestiary:crystalite_shard"
+    }
+  },
+  "result": {
+    "id": "arcanebestiary:crystalite_chestplate",
+    "count": 1
+  }
+}

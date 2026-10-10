@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "EBE",
+    "BSB",
+    "EBE"
+  ],
+  "key": {
+    "E": {
+      "item": "arcanebestiary:ember_essence"
+    },
+    "B": {
+      "item": "minecraft:blaze_rod"
+    },
+    "S": {
+      "item": "arcanebestiary:crystalite_shard"
+    }
+  },
+  "result": {
+    "id": "arcanebestiary:infernal_sigil",
+    "count": 1
+  }
+}
