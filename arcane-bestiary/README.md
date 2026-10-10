@@ -35,7 +35,7 @@ A flat panel that measures real sunlight (sky light minus ambient darkness), so 
 * **Repair:** right-click with a damaged tool, weapon or armor piece to place it inside; it is repaired in daylight (up to 3 durability per second at full sun). Right-click with an empty hand to take it back. Breaking the panel drops the stored item.
 * **Crafting:** Solar Cell (2 glass panes, 2 quartz, 1 crystalite shard) x3 + 2 iron ingots + redstone + 3 smooth stone slabs.
 
-Everything is in the **Arcane Bestiary** creative tab, including spawn eggs for every mob and boss.
+All mod recipes unlock in the recipe book when you join. Everything is in the **Arcane Bestiary** creative tab, including spawn eggs for every mob and boss.
 
 ## Building and running
 

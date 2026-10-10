@@ -192,4 +192,59 @@ public class ArcaneBestiaryTests {
 			context.complete();
 		});
 	}
+
+	private void bossDrops(TestContext context, EntityType<? extends BossEntity> type, net.minecraft.item.Item weapon, net.minecraft.item.Item core) {
+		BossEntity boss = context.spawnMob(type, new BlockPos(3, 1, 3));
+		boss.kill();
+		context.runAtTick(60, () -> {
+			var drops = context.getWorld().getEntitiesByType(EntityType.ITEM, boss.getBoundingBox().expand(30), e -> true);
+			context.assertTrue(drops.stream().anyMatch(i -> i.getStack().isOf(weapon)), "boss should drop its weapon");
+			context.assertTrue(drops.stream().anyMatch(i -> i.getStack().isOf(core)), "boss should drop its core");
+			context.complete();
+		});
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+	public void infernalWardenDrops(TestContext context) {
+		bossDrops(context, ModEntities.INFERNAL_WARDEN, ModItems.EMBERBRAND, ModItems.INFERNAL_CORE);
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+	public void glacialSovereignDrops(TestContext context) {
+		bossDrops(context, ModEntities.GLACIAL_SOVEREIGN, ModItems.FROSTFANG, ModItems.GLACIAL_CORE);
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 100)
+	public void crystalBehemothDrops(TestContext context) {
+		bossDrops(context, ModEntities.CRYSTAL_BEHEMOTH, ModItems.BEHEMOTH_MAUL, ModItems.CRYSTAL_HEART);
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+	public void crystaliteArmorProtects(TestContext context) {
+		MobEntity player = context.spawnMob(EntityType.ZOMBIE, new BlockPos(2, 1, 2));
+		player.setAiDisabled(true);
+		player.equipStack(net.minecraft.entity.EquipmentSlot.HEAD, new ItemStack(ModItems.CRYSTALITE_HELMET));
+		player.equipStack(net.minecraft.entity.EquipmentSlot.CHEST, new ItemStack(ModItems.CRYSTALITE_CHESTPLATE));
+		player.equipStack(net.minecraft.entity.EquipmentSlot.LEGS, new ItemStack(ModItems.CRYSTALITE_LEGGINGS));
+		player.equipStack(net.minecraft.entity.EquipmentSlot.FEET, new ItemStack(ModItems.CRYSTALITE_BOOTS));
+		context.runAtTick(5, () -> {
+			int fromSet = player.getArmor() - (int) player.getAttributeBaseValue(net.minecraft.entity.attribute.EntityAttributes.GENERIC_ARMOR);
+			context.assertTrue(fromSet == 20, "full crystalite set should give 20 armor, got " + fromSet);
+			context.complete();
+		});
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 20)
+	public void crystaliteToolsAreDiamondTier(TestContext context) {
+		ItemStack pick = new ItemStack(ModItems.CRYSTALITE_PICKAXE);
+		context.assertTrue(pick.isSuitableFor(net.minecraft.block.Blocks.OBSIDIAN.getDefaultState()), "crystalite pickaxe should mine obsidian");
+		context.assertTrue(pick.isSuitableFor(ModBlocksAlias.ORE.getDefaultState()), "crystalite pickaxe should mine crystalite ore");
+		ItemStack wood = new ItemStack(net.minecraft.item.Items.WOODEN_PICKAXE);
+		context.assertTrue(!wood.isSuitableFor(ModBlocksAlias.ORE.getDefaultState()), "wooden pickaxe should not mine crystalite ore");
+		context.complete();
+	}
+
+	private static final class ModBlocksAlias {
+		static final net.minecraft.block.Block ORE = ModBlocks.CRYSTALITE_ORE;
+	}
 }
