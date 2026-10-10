@@ -1,0 +1,18 @@
+{
+  "minecraft": {
+    "version": "1.21.1",
+    "modLoaders": [
+      {
+        "id": "fabric-0.19.5",
+        "primary": true
+      }
+    ]
+  },
+  "manifestType": "minecraftModpack",
+  "manifestVersion": 1,
+  "name": "My Modpack",
+  "version": "0.1.0",
+  "author": "Madhav",
+  "files": [],
+  "overrides": "overrides"
+}

@@ -1,0 +1,63 @@
+name: Release to CurseForge
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Pack version (e.g. 0.1.0)"
+        required: true
+
+env:
+  CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+  CURSEFORGE_API: https://minecraft.curseforge.com/api
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build pack
+        id: build
+        run: echo "zip=$(bash scripts/build.sh '${{ steps.v.outputs.version }}')" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to CurseForge
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          VERSION: ${{ steps.v.outputs.version }}
+          ZIP: ${{ steps.build.outputs.zip }}
+        run: |
+          mc_version=$(jq -r '.minecraft.version' manifest.json)
+          game_version_id=$(curl -fsS -H "X-Api-Token: $CURSEFORGE_TOKEN" "$CURSEFORGE_API/game/versions" \
+            | jq -r --arg n "$mc_version" '[.[] | select(.name == $n)][0].id')
+          if [ -z "$game_version_id" ] || [ "$game_version_id" = "null" ]; then
+            echo "Could not resolve CurseForge game version id for $mc_version" >&2
+            exit 1
+          fi
+
+          metadata=$(jq -n \
+            --arg name "$(jq -r .name manifest.json) $VERSION" \
+            --argjson gv "$game_version_id" \
+            '{changelog: "Release \($name)", changelogType: "markdown", displayName: $name, gameVersions: [$gv], releaseType: "release"}')
+
+          curl -fsS -X POST "$CURSEFORGE_API/projects/$CURSEFORGE_PROJECT_ID/upload-file" \
+            -H "X-Api-Token: $CURSEFORGE_TOKEN" \
+            -F "metadata=$metadata" \
+            -F "file=@$ZIP"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: modpack-${{ steps.v.outputs.version }}
+          path: ${{ steps.build.outputs.zip }}
