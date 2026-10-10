@@ -529,6 +529,19 @@ def sigil(kind):
     return cv
 
 
+def solar_cell():
+    cv = Canvas()
+    cv.poly([(3, 1), (14, 1), (12.5, 15), (1.5, 15)], lambda x, y: mix((16, 40, 110), (60, 120, 220), min(1, (x + (15 - y)) / 22 + (noise("cell", x, y) - 0.5) * 0.2)))
+    for x in (6, 10):
+        cv.line(x, 2, x - 1, 14, (200, 205, 215, 255))
+    for y in (6, 10):
+        cv.line(2, y, 13, y, (200, 205, 215, 255))
+    cv.set(4, 3, (170, 220, 255, 255))
+    cv.set(5, 3, (170, 220, 255, 255))
+    cv.outline()
+    return cv
+
+
 def crystal_color(name):
     def fn(x, y):
         n = noise(name, x, y)
@@ -584,6 +597,7 @@ def make_item_textures():
         "tempest_staff": staff(),
         "behemoth_maul": maul(),
         "crystalite_shard": shard(),
+        "solar_cell": solar_cell(),
         "ember_essence": essence("ember"),
         "frost_essence": essence("frost"),
         "infernal_core": core("infernal"),
@@ -631,6 +645,37 @@ def make_block_textures():
     block.save(os.path.join(out, "crystalite_block.png"))
 
 
+def make_solar_textures():
+    out = os.path.join(ASSETS, "textures", "block")
+    frame = (176, 182, 192, 255)
+    for active in (False, True):
+        top = Image.new("RGBA", (16, 16))
+        c1, c2 = ((10, 24, 70), (30, 70, 150)) if not active else ((30, 90, 200), (120, 200, 255))
+        for y in range(16):
+            for x in range(16):
+                if x in (0, 15) or y in (0, 15):
+                    top.putpixel((x, y), shade(frame, 0.85 + 0.2 * noise("frame", x, y)))
+                elif x in (7, 8) or y in (7, 8):
+                    top.putpixel((x, y), shade(frame, 0.9))
+                else:
+                    t = ((x + (15 - y)) / 30.0) * 0.6 + noise("solar", x, y) * 0.25
+                    top.putpixel((x, y), mix(c1, c2, min(1.0, t)))
+        for (x, y) in [(2, 2), (3, 2), (2, 3), (10, 9), (11, 9)]:
+            top.putpixel((x, y), (200, 235, 255, 255) if not active else (255, 255, 255, 255))
+        top.save(os.path.join(out, "solar_panel_top_active.png" if active else "solar_panel_top.png"))
+    side = Image.new("RGBA", (16, 16))
+    bottom = Image.new("RGBA", (16, 16))
+    for y in range(16):
+        for x in range(16):
+            n = noise("metal", x, y)
+            side.putpixel((x, y), shade(frame, 0.7 + 0.25 * n) if y < 4 else (0, 0, 0, 0))
+            bottom.putpixel((x, y), shade((110, 114, 124, 255), 0.85 + 0.25 * n))
+    for x in range(16):
+        side.putpixel((x, 0), shade(frame, 1.1))
+    side.save(os.path.join(out, "solar_panel_side.png"))
+    bottom.save(os.path.join(out, "solar_panel_bottom.png"))
+
+
 def make_icon(imgs):
     icon = imgs["emberbrand"].resize((128, 128), Image.NEAREST)
     bg = Image.new("RGBA", (128, 128), (30, 20, 48, 255))
@@ -644,7 +689,7 @@ def make_icon(imgs):
 
 HANDHELD = ["crystalite_sword", "crystalite_pickaxe", "crystalite_axe", "crystalite_shovel", "crystalite_hoe",
             "emberbrand", "frostfang", "tempest_staff", "behemoth_maul"]
-GENERATED = ["crystalite_shard", "ember_essence", "frost_essence", "infernal_core", "glacial_core", "crystal_heart",
+GENERATED = ["crystalite_shard", "solar_cell", "ember_essence", "frost_essence", "infernal_core", "glacial_core", "crystal_heart",
              "infernal_sigil", "glacial_sigil", "crystal_sigil",
              "crystalite_helmet", "crystalite_chestplate", "crystalite_leggings", "crystalite_boots"]
 EGGS = ["frost_wraith", "ember_imp", "crystal_crawler", "infernal_warden", "glacial_sovereign", "crystal_behemoth"]
@@ -667,6 +712,34 @@ def make_models():
         write_json(os.path.join(ASSETS, "models", "block", name + ".json"),
                    {"parent": "minecraft:block/cube_all", "textures": {"all": f"{NS}:block/{name}"}})
         write_json(os.path.join(ASSETS, "models", "item", name + ".json"), {"parent": f"{NS}:block/{name}"})
+
+
+def make_solar_models():
+    for active in (False, True):
+        name = "solar_panel_active" if active else "solar_panel"
+        write_json(os.path.join(ASSETS, "models", "block", name + ".json"), {
+            "parent": "minecraft:block/block",
+            "textures": {
+                "top": f"{NS}:block/solar_panel_top" + ("_active" if active else ""),
+                "side": f"{NS}:block/solar_panel_side",
+                "bottom": f"{NS}:block/solar_panel_bottom",
+                "particle": f"{NS}:block/solar_panel_bottom",
+            },
+            "elements": [{
+                "from": [0, 0, 0], "to": [16, 4, 16],
+                "faces": {
+                    "up": {"uv": [0, 0, 16, 16], "texture": "#top"},
+                    "down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"},
+                    "north": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "north"},
+                    "south": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "south"},
+                    "west": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "west"},
+                    "east": {"uv": [0, 0, 16, 4], "texture": "#side", "cullface": "east"},
+                },
+            }],
+        })
+    write_json(os.path.join(ASSETS, "blockstates", "solar_panel.json"), {"variants": {
+        f"power={p}": {"model": f"{NS}:block/solar_panel" + ("_active" if p > 0 else "")} for p in range(16)}})
+    write_json(os.path.join(ASSETS, "models", "item", "solar_panel.json"), {"parent": f"{NS}:block/solar_panel_active"})
 
 
 def shaped(name, pattern, key, result, count=1):
@@ -702,6 +775,12 @@ def make_recipes():
     shaped("crystalite_boots", ["S S", "S S"], {"S": s}, f"{NS}:crystalite_boots")
     shaped("crystalite_block", ["SSS", "SSS", "SSS"], {"S": s}, f"{NS}:crystalite_block")
     shapeless("crystalite_shard_from_block", [f"{NS}:crystalite_block"], s, 9)
+
+    shaped("solar_cell", ["GGG", "QSQ"],
+           {"G": "minecraft:glass_pane", "Q": "minecraft:quartz", "S": s}, f"{NS}:solar_cell", 2)
+    shaped("solar_panel", ["CCC", "IRI", "SSS"],
+           {"C": f"{NS}:solar_cell", "I": "minecraft:iron_ingot", "R": "minecraft:redstone", "S": "minecraft:smooth_stone_slab"},
+           f"{NS}:solar_panel")
 
     shaped("infernal_sigil", ["EBE", "BSB", "EBE"],
            {"E": f"{NS}:ember_essence", "B": "minecraft:blaze_rod", "S": s}, f"{NS}:infernal_sigil")
@@ -755,6 +834,11 @@ def make_loot():
         "pools": [{"rolls": 1, "conditions": [{"condition": "minecraft:survives_explosion"}],
                    "entries": [{"type": "minecraft:item", "name": f"{NS}:crystalite_block"}]}],
     })
+    write_json(os.path.join(DATA, "loot_table", "blocks", "solar_panel.json"), {
+        "type": "minecraft:block",
+        "pools": [{"rolls": 1, "conditions": [{"condition": "minecraft:survives_explosion"}],
+                   "entries": [{"type": "minecraft:item", "name": f"{NS}:solar_panel"}]}],
+    })
     silk = {"condition": "minecraft:match_tool", "predicate": {"predicates": {"minecraft:enchantments": [
         {"enchantments": "minecraft:silk_touch", "levels": {"min": 1}}]}}}
     write_json(os.path.join(DATA, "loot_table", "blocks", "crystalite_ore.json"), {
@@ -773,7 +857,7 @@ def make_loot():
 
 def make_tags_and_worldgen():
     both = [f"{NS}:crystalite_ore", f"{NS}:crystalite_block"]
-    write_json(os.path.join(MC_DATA, "tags", "block", "mineable", "pickaxe.json"), {"replace": False, "values": both})
+    write_json(os.path.join(MC_DATA, "tags", "block", "mineable", "pickaxe.json"), {"replace": False, "values": both + [f"{NS}:solar_panel"]})
     write_json(os.path.join(MC_DATA, "tags", "block", "needs_iron_tool.json"), {"replace": False, "values": both})
     state = {"Name": f"{NS}:crystalite_ore"}
     write_json(os.path.join(DATA, "worldgen", "configured_feature", "crystalite_ore.json"), {
@@ -806,6 +890,10 @@ def make_lang():
         "block.arcanebestiary.crystalite_ore": "Crystalite Ore",
         "block.arcanebestiary.crystalite_block": "Block of Crystalite",
         "item.arcanebestiary.crystalite_shard": "Crystalite Shard",
+        "block.arcanebestiary.solar_panel": "Solar Panel",
+        "block.arcanebestiary.solar_panel.tooltip.repair": "Use with a damaged item to repair it in sunlight",
+        "block.arcanebestiary.solar_panel.tooltip.redstone": "Emits a redstone signal equal to the sunlight level",
+        "item.arcanebestiary.solar_cell": "Solar Cell",
         "item.arcanebestiary.ember_essence": "Ember Essence",
         "item.arcanebestiary.frost_essence": "Frost Essence",
         "item.arcanebestiary.infernal_core": "Infernal Core",
@@ -853,8 +941,10 @@ if __name__ == "__main__":
     make_armor_textures()
     item_imgs = make_item_textures()
     make_block_textures()
+    make_solar_textures()
     make_icon(item_imgs)
     make_models()
+    make_solar_models()
     make_recipes()
     make_loot()
     make_tags_and_worldgen()

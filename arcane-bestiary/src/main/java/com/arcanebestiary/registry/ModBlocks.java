@@ -1,6 +1,7 @@
 package com.arcanebestiary.registry;
 
 import com.arcanebestiary.ArcaneBestiary;
+import com.arcanebestiary.block.SolarPanelBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.ExperienceDroppingBlock;
@@ -29,6 +30,14 @@ public final class ModBlocks {
 			.strength(5.0f, 6.0f)
 			.sounds(BlockSoundGroup.AMETHYST_BLOCK)
 			.luminance(state -> 7)));
+
+	public static final Block SOLAR_PANEL = register("solar_panel",
+		new SolarPanelBlock(AbstractBlock.Settings.create()
+			.mapColor(MapColor.BLUE)
+			.strength(1.5f, 4.0f)
+			.sounds(BlockSoundGroup.METAL)
+			.nonOpaque()
+			.solid()));
 
 	private static Block register(String name, Block block) {
 		Identifier id = ArcaneBestiary.id(name);

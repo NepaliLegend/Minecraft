@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "arcanebestiary:crystalite_ore",
-    "arcanebestiary:crystalite_block"
+    "arcanebestiary:crystalite_block",
+    "arcanebestiary:solar_panel"
   ]
 }

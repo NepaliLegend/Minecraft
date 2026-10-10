@@ -1,6 +1,7 @@
 package com.arcanebestiary;
 
 import com.arcanebestiary.registry.ModArmorMaterials;
+import com.arcanebestiary.registry.ModBlockEntities;
 import com.arcanebestiary.registry.ModBlocks;
 import com.arcanebestiary.registry.ModEntities;
 import com.arcanebestiary.registry.ModItemGroups;
@@ -28,6 +29,7 @@ public class ArcaneBestiary implements ModInitializer {
 	public void onInitialize() {
 		ModEntities.init();
 		ModBlocks.init();
+		ModBlockEntities.init();
 		ModArmorMaterials.init();
 		ModItems.init();
 		ModItemGroups.init();

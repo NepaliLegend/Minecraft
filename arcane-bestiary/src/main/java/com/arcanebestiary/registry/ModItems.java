@@ -33,6 +33,8 @@ public final class ModItems {
 	public static final Item GLACIAL_CORE = register("glacial_core", new Item(new Item.Settings().rarity(Rarity.EPIC)));
 	public static final Item CRYSTAL_HEART = register("crystal_heart", new Item(new Item.Settings().rarity(Rarity.EPIC)));
 
+	public static final Item SOLAR_CELL = register("solar_cell", new Item(new Item.Settings()));
+
 	public static final Item CRYSTALITE_SWORD = register("crystalite_sword", new SwordItem(ModToolMaterials.CRYSTALITE,
 		new Item.Settings().attributeModifiers(SwordItem.createAttributeModifiers(ModToolMaterials.CRYSTALITE, 3, -2.4f))));
 	public static final Item CRYSTALITE_PICKAXE = register("crystalite_pickaxe", new PickaxeItem(ModToolMaterials.CRYSTALITE,

@@ -17,6 +17,7 @@ public final class ModItemGroups {
 				ModItems.ALL.forEach(entries::add);
 				entries.add(ModBlocks.CRYSTALITE_ORE);
 				entries.add(ModBlocks.CRYSTALITE_BLOCK);
+				entries.add(ModBlocks.SOLAR_PANEL);
 			})
 			.build());
 

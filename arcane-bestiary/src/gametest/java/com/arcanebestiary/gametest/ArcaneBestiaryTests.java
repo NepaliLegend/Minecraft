@@ -1,6 +1,9 @@
 package com.arcanebestiary.gametest;
 
+import com.arcanebestiary.block.SolarPanelBlock;
+import com.arcanebestiary.block.SolarPanelBlockEntity;
 import com.arcanebestiary.entity.BossEntity;
+import com.arcanebestiary.registry.ModBlocks;
 import com.arcanebestiary.registry.ModEntities;
 import com.arcanebestiary.registry.ModItems;
 import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
@@ -123,6 +126,69 @@ public class ArcaneBestiaryTests {
 		context.runAtTick(1, () -> {
 			var bolts = context.getWorld().getEntitiesByType(EntityType.LIGHTNING_BOLT, player.getBoundingBox().expand(200), e -> true);
 			context.assertTrue(!bolts.isEmpty(), "Tempest Staff should call lightning");
+			context.complete();
+		});
+	}
+
+	private SolarPanelBlockEntity placePanel(TestContext context, BlockPos relative) {
+		context.setBlockState(relative, ModBlocks.SOLAR_PANEL);
+		return (SolarPanelBlockEntity) context.getBlockEntity(relative);
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 120)
+	public void solarPanelRepairsAndPowersInDaylight(TestContext context) {
+		context.getWorld().setTimeOfDay(6000);
+		context.getWorld().setWeather(100000, 0, false, false);
+		BlockPos rel = new BlockPos(2, 1, 2);
+		SolarPanelBlockEntity panel = placePanel(context, rel);
+		PlayerEntity player = context.createMockPlayer(GameMode.SURVIVAL);
+		ItemStack pick = new ItemStack(ModItems.CRYSTALITE_PICKAXE);
+		pick.setDamage(500);
+		player.setStackInHand(net.minecraft.util.Hand.MAIN_HAND, pick);
+		context.useBlock(rel, player);
+		context.assertTrue(panel.getStoredStack() == pick || !panel.getStoredStack().isEmpty(), "panel should accept the damaged item");
+		context.assertTrue(player.getMainHandStack().isEmpty(), "item should leave the player's hand");
+		context.runAtTick(60, () -> {
+			context.assertTrue(panel.getStoredStack().getDamage() < 500, "stored item should have been repaired, damage=" + panel.getStoredStack().getDamage());
+			int power = context.getBlockState(rel).get(SolarPanelBlock.POWER);
+			context.assertTrue(power > 0, "panel should emit redstone power in daylight, power=" + power);
+			context.complete();
+		});
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 120)
+	public void solarPanelIdleWhenCovered(TestContext context) {
+		context.getWorld().setTimeOfDay(6000);
+		BlockPos rel = new BlockPos(2, 1, 2);
+		placePanel(context, rel);
+		for (int y = 2; y <= 6; y++) {
+			context.setBlockState(new BlockPos(2, y, 2), net.minecraft.block.Blocks.STONE);
+		}
+		context.runAtTick(60, () -> {
+			int power = context.getBlockState(rel).get(SolarPanelBlock.POWER);
+			context.assertTrue(power == 0, "covered panel should not emit power, power=" + power);
+			context.complete();
+		});
+	}
+
+	@GameTest(templateName = FabricGameTest.EMPTY_STRUCTURE, tickLimit = 40)
+	public void solarPanelDropsItemAndPersists(TestContext context) {
+		BlockPos rel = new BlockPos(2, 1, 2);
+		SolarPanelBlockEntity panel = placePanel(context, rel);
+		ItemStack sword = new ItemStack(ModItems.EMBERBRAND);
+		sword.setDamage(100);
+		panel.setStoredStack(sword);
+
+		var registries = context.getWorld().getRegistryManager();
+		var nbt = panel.createNbt(registries);
+		SolarPanelBlockEntity copy = new SolarPanelBlockEntity(panel.getPos(), panel.getCachedState());
+		copy.read(nbt, registries);
+		context.assertTrue(copy.getStoredStack().isOf(ModItems.EMBERBRAND) && copy.getStoredStack().getDamage() == 100,
+			"stored item should survive an NBT round trip");
+
+		context.setBlockState(rel, net.minecraft.block.Blocks.AIR);
+		context.runAtTick(5, () -> {
+			context.expectEntity(EntityType.ITEM);
 			context.complete();
 		});
 	}
