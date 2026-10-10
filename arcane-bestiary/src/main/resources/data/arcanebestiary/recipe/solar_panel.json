@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "CCC",
+    "IRI",
+    "SSS"
+  ],
+  "key": {
+    "C": {
+      "item": "arcanebestiary:solar_cell"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "minecraft:smooth_stone_slab"
+    }
+  },
+  "result": {
+    "id": "arcanebestiary:solar_panel",
+    "count": 1
+  }
+}

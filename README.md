@@ -1,14 +1,17 @@
 # Minecraft
 Minecraft modpacks
 
-## Layout
+## Mods
+* [`arcane-bestiary/`](arcane-bestiary/) - Fabric mod for Minecraft 1.21.1 adding new mobs, three bosses, crystalite tools and armor, legendary weapons, and solar panels.
+
+## Modpack layout
 
 - `manifest.json` – CurseForge modpack manifest (Minecraft version, mod loader, mod list).
 - `overrides/` – configs, scripts, resource packs etc. copied into the instance on install.
 - `scripts/build.sh` – builds `dist/<name>-<version>.zip` (needs `jq` and `zip`).
 - `.github/workflows/release.yml` – builds and uploads the pack to CurseForge.
 
-## Adding mods
+### Adding mods
 
 Each entry in `manifest.json` `files` needs the CurseForge project and file IDs:
 
@@ -24,7 +27,7 @@ Set the Minecraft version and loader in `manifest.json` (`minecraft.version`, `m
 e.g. `forge-47.2.0`, `neoforge-21.1.1`, `fabric-0.15.11`). If you change the Minecraft version, the
 release workflow picks it up automatically.
 
-## Connecting to CurseForge
+### Connecting to CurseForge
 
 1. Create the project at <https://authors.curseforge.com> (*Create a project* → Minecraft → Modpacks).
    Upload the first release by hand if CurseForge requires one before the API works.

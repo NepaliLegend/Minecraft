@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "arcanebestiary",
+  "version": "${version}",
+  "name": "Arcane Bestiary",
+  "description": "Adds new mobs, bosses, tools, weapons and armor: three summonable bosses, three new mobs, crystalite gear and four legendary weapons.",
+  "authors": ["Arcane Bestiary Team"],
+  "license": "CC0-1.0",
+  "icon": "assets/arcanebestiary/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.arcanebestiary.ArcaneBestiary"],
+    "client": ["com.arcanebestiary.client.ArcaneBestiaryClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

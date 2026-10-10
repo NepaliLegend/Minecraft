@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ICG",
+    " R ",
+    " R "
+  ],
+  "key": {
+    "I": {
+      "item": "arcanebestiary:infernal_core"
+    },
+    "C": {
+      "item": "arcanebestiary:crystalite_shard"
+    },
+    "G": {
+      "item": "arcanebestiary:glacial_core"
+    },
+    "R": {
+      "item": "minecraft:blaze_rod"
+    }
+  },
+  "result": {
+    "id": "arcanebestiary:tempest_staff",
+    "count": 1
+  }
+}
